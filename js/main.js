@@ -299,6 +299,18 @@ class ChatApp {
 
     if (this.isGenerating) return;
 
+    // 确保当前对话存在
+    let currentConversation = this.conversations.find(c => c.id === this.currentConversationId);
+    if (!currentConversation) {
+      console.warn('当前对话不存在，创建新对话');
+      const newConv = this.storage.createNewConversation();
+      this.conversations.push(newConv);
+      this.currentConversationId = newConv.id;
+      this.storage.saveConversations(this.conversations);
+      this.storage.saveCurrentConversationId(newConv.id);
+      currentConversation = newConv;
+    }
+
     // 清空输入框
     this.messageInput.value = '';
     this.adjustTextareaHeight();
@@ -333,14 +345,29 @@ class ChatApp {
 
     // 准备消息历史
     const conversation = this.conversations.find(c => c.id === this.currentConversationId);
+    
+    // 如果找不到对话（可能被清理了），重新创建
+    if (!conversation) {
+      console.warn('当前对话不存在，创建新对话');
+      const newConv = this.storage.createNewConversation();
+      this.conversations.push(newConv);
+      this.currentConversationId = newConv.id;
+      this.storage.saveConversations(this.conversations);
+      this.storage.saveCurrentConversationId(newConv.id);
+    }
+    
+    // 重新获取当前对话（确保获取最新状态）
+    const currentConv = this.conversations.find(c => c.id === this.currentConversationId);
+    
+    // 准备发送给 API 的消息列表
     const messages = [
       { role: 'system', content: this.config.systemPrompt },
-      ...conversation.messages
+      ...currentConv.messages
     ];
 
     // 调试：打印发送的消息
     console.log('发送给 API 的消息:', messages);
-    console.log('对话历史长度:', conversation.messages.length);
+    console.log('对话历史长度:', currentConv.messages.length);
 
     // 调用 API
     this.isGenerating = true;
@@ -422,8 +449,10 @@ class ChatApp {
   }
 
   switchConversation(id) {
-    // 清理旧的空对话（除了即将切换到的对话）
-    this.cleanupEmptyConversations(id);
+    // 延迟清理空对话，避免影响即将切换的对话
+    setTimeout(() => {
+      this.cleanupEmptyConversations(id);
+    }, 500);
     
     this.currentConversationId = id;
     this.storage.saveCurrentConversationId(id);
@@ -441,13 +470,18 @@ class ChatApp {
     
     // 确保至少有一个对话
     if (nonEmptyConversations.length === 0) {
+      console.log('清理后没有对话了，跳过清理');
       return;
     }
     
     // 如果有空对话被清理，更新存储
     if (nonEmptyConversations.length < this.conversations.length) {
+      console.log(`清理了 ${this.conversations.length - nonEmptyConversations.length} 个空对话`);
       this.conversations = nonEmptyConversations;
       this.storage.saveConversations(this.conversations);
+      
+      // 更新对话列表显示
+      this.renderConversationsList();
     }
   }
 
