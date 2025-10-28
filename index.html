@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 对话助手</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.0.0/marked.min.js"></script>
+  <!-- Highlight.js for code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css" id="highlight-light">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" id="highlight-dark" disabled>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+</head>
+<body class="light-theme">
+  <div class="chat-container">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-icon" id="newChatBtn" title="新建对话">➕</button>
+        <h2>对话历史</h2>
+        <button class="btn-icon" id="toggleSidebarBtn" title="收起">◀</button>
+      </div>
+      
+      <div class="conversations-list" id="conversationsList">
+        <!-- 动态生成对话列表 -->
+      </div>
+      
+      <div class="sidebar-footer">
+        <button class="btn-secondary" id="settingsBtn">⚙️ 设置</button>
+        <button class="btn-icon" id="themeToggleBtn" title="切换主题">🌙</button>
+      </div>
+    </aside>
+
+    <!-- 主聊天区 -->
+    <main class="chat-main">
+      <!-- 头部 -->
+      <header class="chat-header">
+        <button class="btn-icon" id="showSidebarBtn" title="显示侧边栏" style="display: none;">▶</button>
+        <h1 class="chat-title" id="chatTitle">新对话</h1>
+        <div class="header-actions">
+          <button class="btn-icon" id="clearChatBtn" title="清空对话">🗑️</button>
+        </div>
+      </header>
+
+      <!-- 消息区 -->
+      <div class="messages-container" id="messagesContainer">
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-content">
+            <h2>👋 欢迎使用通义千问 AI 助手</h2>
+            <p>我可以帮您解答问题、提供建议、进行创作等。</p>
+            <div class="features-grid">
+              <div class="feature-card">
+                <span class="feature-icon">💡</span>
+                <h3>智能对话</h3>
+                <p>自然流畅的多轮对话</p>
+              </div>
+              <div class="feature-card">
+                <span class="feature-icon">🌐</span>
+                <h3>网络搜索</h3>
+                <p>获取最新实时信息</p>
+              </div>
+              <div class="feature-card">
+                <span class="feature-icon">📝</span>
+                <h3>内容创作</h3>
+                <p>写作、编程、翻译</p>
+              </div>
+              <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3>专业分析</h3>
+                <p>深度思考和分析</p>
+              </div>
+            </div>
+            <div class="quick-prompts">
+              <p>试试这些问题：</p>
+              <button class="prompt-btn" data-prompt="今天有什么新闻？">今天有什么新闻？</button>
+              <button class="prompt-btn" data-prompt="用Python写一个快速排序">用Python写一个快速排序</button>
+              <button class="prompt-btn" data-prompt="解释一下什么是大语言模型">解释一下什么是大语言模型</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="messages" id="messages">
+          <!-- 动态生成消息 -->
+        </div>
+      </div>
+
+      <!-- 输入区 -->
+      <footer class="chat-footer">
+        <div class="input-container">
+          <textarea 
+            id="messageInput" 
+            placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
+            rows="1"
+          ></textarea>
+          <button class="btn-send" id="sendBtn" title="发送 (Enter)">
+            <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+          <button class="btn-stop" id="stopBtn" title="停止生成" style="display: none;">
+            <svg class="stop-icon" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="input-footer">
+          <div class="input-hints">
+            <span class="model-indicator" id="modelIndicator">模型: qwen-plus</span>
+            <span class="search-indicator" id="searchIndicator" style="display: none;">🌐 搜索已启用</span>
+          </div>
+          <span class="keyboard-hint">Enter 发送 · Shift+Enter 换行</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="settings-modal" id="settingsModal" style="display: none;">
+    <div class="settings-modal-content">
+      <div class="settings-modal-header">
+        <h2>⚙️ AI 助手设置</h2>
+        <button class="btn-icon" id="closeSettingsBtn" title="关闭">✖️</button>
+      </div>
+      
+      <div class="settings-modal-body">
+        <!-- API 配置 -->
+        <div class="settings-section">
+          <h3>🔑 API 配置</h3>
+          <div class="form-group">
+            <label for="modalApiKey">API Key <span class="required">*</span></label>
+            <div class="input-with-button">
+              <input type="password" id="modalApiKey" placeholder="请输入阿里云 DashScope API Key">
+              <button type="button" id="modalToggleApiKey" class="btn-icon" title="显示/隐藏">👁️</button>
+            </div>
+            <small class="help-text">
+              获取 API Key: <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank">dashscope.console.aliyun.com/apiKey</a>
+            </small>
+          </div>
+          <button type="button" id="modalValidateBtn" class="btn btn-secondary">验证 API Key</button>
+          <span id="modalValidateResult" class="validate-result"></span>
+        </div>
+
+        <!-- 模型配置 -->
+        <div class="settings-section">
+          <h3>🤖 模型配置</h3>
+          <div class="form-group">
+            <label for="modalModel">选择模型</label>
+            <select id="modalModel"></select>
+            <small class="help-text" id="modalModelInfo"></small>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="modalEnableSearch">
+              <span>启用网络搜索</span>
+            </label>
+          </div>
+          
+          <!-- 自定义模型管理 -->
+          <div class="form-group">
+            <label>自定义模型列表</label>
+            <div class="model-list" id="modalModelList"></div>
+            <button type="button" id="modalAddModelBtn" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">+ 添加模型</button>
+          </div>
+        </div>
+
+        <!-- 高级参数 -->
+        <div class="settings-section">
+          <h3>⚡ 高级参数</h3>
+          <div class="form-group">
+            <label>温度: <span id="modalTemperatureValue">0.7</span></label>
+            <input type="range" id="modalTemperature" min="0" max="2" step="0.1" value="0.7">
+          </div>
+          <div class="form-group">
+            <label>最大 Token: <span id="modalMaxTokensValue">2000</span></label>
+            <input type="range" id="modalMaxTokens" min="100" max="8000" step="100" value="2000">
+          </div>
+          <div class="form-group">
+            <label for="modalSystemPrompt">系统提示词</label>
+            <textarea id="modalSystemPrompt" rows="3" placeholder="定义 AI 的角色和行为"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-modal-footer">
+        <button type="button" id="modalSaveBtn" class="btn btn-primary">保存设置</button>
+        <button type="button" id="modalCancelBtn" class="btn btn-secondary">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Prompt Dialog -->
+  <div class="custom-dialog" id="customDialog" style="display: none;">
+    <div class="custom-dialog-content">
+      <div class="custom-dialog-header">
+        <h3 id="dialogTitle">提示</h3>
+      </div>
+      <div class="custom-dialog-body">
+        <p id="dialogMessage"></p>
+        <input type="text" id="dialogInput" class="dialog-input" style="display: none;">
+      </div>
+      <div class="custom-dialog-footer">
+        <button class="btn btn-secondary" id="dialogCancelBtn">取消</button>
+        <button class="btn btn-primary" id="dialogConfirmBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

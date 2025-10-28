@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 设置</title>
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+  <div class="settings-container">
+    <header class="settings-header">
+      <h1>⚙️ AI 助手设置</h1>
+      <p class="subtitle">配置您的通义千问 API 和个性化选项</p>
+    </header>
+
+    <div class="settings-content">
+      <!-- API 配置区 -->
+      <section class="settings-section">
+        <h2>🔑 API 配置</h2>
+        
+        <div class="form-group">
+          <label for="apiKey">API Key <span class="required">*</span></label>
+          <div class="input-with-button">
+            <input 
+              type="password" 
+              id="apiKey" 
+              placeholder="请输入您的阿里云 DashScope API Key"
+              autocomplete="off"
+            >
+            <button type="button" id="toggleApiKey" class="btn-icon" title="显示/隐藏">👁️</button>
+          </div>
+          <small class="help-text">
+            获取 API Key: <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank">https://dashscope.console.aliyun.com/apiKey</a>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <button type="button" id="validateBtn" class="btn btn-secondary">验证 API Key</button>
+          <span id="validateResult" class="validate-result"></span>
+        </div>
+      </section>
+
+      <!-- 模型配置区 -->
+      <section class="settings-section">
+        <h2>🤖 模型配置</h2>
+        
+        <div class="form-group">
+          <label for="model">选择模型</label>
+          <select id="model">
+            <!-- 动态生成 -->
+          </select>
+          <small class="help-text model-info" id="modelInfo"></small>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableSearch">
+            <span>启用网络搜索</span>
+          </label>
+          <small class="help-text">某些模型支持联网搜索获取最新信息</small>
+        </div>
+      </section>
+
+      <!-- 高级参数区 -->
+      <section class="settings-section">
+        <h2>⚡ 高级参数</h2>
+        
+        <div class="form-group">
+          <label for="temperature">
+            温度 (Temperature): <span id="temperatureValue">0.7</span>
+          </label>
+          <input 
+            type="range" 
+            id="temperature" 
+            min="0" 
+            max="2" 
+            step="0.1" 
+            value="0.7"
+          >
+          <small class="help-text">控制回复的随机性，值越高越随机 (0-2)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="maxTokens">
+            最大 Token 数: <span id="maxTokensValue">2000</span>
+          </label>
+          <input 
+            type="range" 
+            id="maxTokens" 
+            min="100" 
+            max="8000" 
+            step="100" 
+            value="2000"
+          >
+          <small class="help-text">限制单次回复的最大长度</small>
+        </div>
+
+        <div class="form-group">
+          <label for="systemPrompt">系统提示词</label>
+          <textarea 
+            id="systemPrompt" 
+            rows="4" 
+            placeholder="定义 AI 的角色和行为方式"
+          ></textarea>
+          <small class="help-text">自定义 AI 的人格和回复风格</small>
+        </div>
+      </section>
+
+      <!-- 界面设置区 -->
+      <section class="settings-section">
+        <h2>🎨 界面设置</h2>
+        
+        <div class="form-group">
+          <label for="theme">主题</label>
+          <select id="theme">
+            <option value="light">浅色</option>
+            <option value="dark">深色</option>
+            <option value="auto">跟随系统</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- 数据管理区 -->
+      <section class="settings-section">
+        <h2>💾 数据管理</h2>
+        
+        <div class="button-group">
+          <button type="button" id="exportBtn" class="btn btn-secondary">导出对话历史</button>
+          <button type="button" id="importBtn" class="btn btn-secondary">导入对话历史</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;">
+          <button type="button" id="clearDataBtn" class="btn btn-danger">清空所有数据</button>
+        </div>
+      </section>
+    </div>
+
+    <footer class="settings-footer">
+      <button type="button" id="backBtn" class="btn btn-secondary">← 返回主界面</button>
+      <button type="button" id="saveBtn" class="btn btn-primary">保存设置</button>
+      <button type="button" id="cancelBtn" class="btn btn-secondary">关闭</button>
+    </footer>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>
+

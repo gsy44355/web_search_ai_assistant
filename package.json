@@ -1,0 +1,17 @@
+{
+  "name": "web-search-ai-assisstant",
+  "version": "1.0.0",
+  "description": "utools plugin for AI chat with web search powered by Alibaba Qianwen",
+  "main": "index.html",
+  "keywords": [
+    "utools",
+    "plugin",
+    "ai",
+    "chat",
+    "qianwen",
+    "tongyi"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
+

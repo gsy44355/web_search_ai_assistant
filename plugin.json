@@ -1,0 +1,33 @@
+{
+  "name": "通义千问 AI 助手",
+  "version": "1.0.0",
+  "description": "支持网络搜索的智能 AI 对话助手，基于阿里云通义千问",
+  "author": "Your Name",
+  "homepage": "https://github.com/yourusername/web_search_ai_assisstant",
+  "logo": "logo.png",
+  "platform": ["win32", "darwin", "linux"],
+  "main": "index.html",
+  "preload": "preload.js",
+  "features": [
+    {
+      "code": "ai_chat",
+      "explain": "AI 对话",
+      "cmds": [
+        "AI",
+        "ai",
+        "通义",
+        "千问",
+        "对话"
+      ]
+    },
+    {
+      "code": "ai_settings",
+      "explain": "AI 设置",
+      "cmds": [
+        "AI设置",
+        "ai设置"
+      ]
+    }
+  ]
+}
+
