@@ -11,7 +11,7 @@
   "features": [
     {
       "code": "ai_chat",
-      "explain": "AI 对话",
+      "explain": "AI 联网对话",
       "cmds": [
         "AI",
         "ai",

@@ -199,7 +199,7 @@ zip -r plugin.upx . -x "*.git*"
 
 **如果觉得有用，请给个 ⭐ Star！**
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by [gsy]
 
 </div>
 
