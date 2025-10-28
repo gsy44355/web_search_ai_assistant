@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "支持网络搜索的智能 AI 对话助手，基于阿里云通义千问",
   "author": "gsy",
-  "homepage": "https://github.com/gsy44355/web_search_ai_assisstant",
+  "homepage": "https://github.com/gsy44355/web_search_ai_assistant",
   "logo": "logo.png",
   "platform": ["win32", "darwin", "linux"],
   "main": "index.html",
