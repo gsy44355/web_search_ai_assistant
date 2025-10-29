@@ -211,6 +211,65 @@
     </div>
   </div>
 
+  <!-- uTools Plugin Enter Handler -->
+  <script>
+    // 处理 uTools 插件进入事件
+    if (typeof utools !== 'undefined') {
+      utools.onPluginEnter(({ code, type, payload, option }) => {
+        console.log('========== uTools 插件进入 ==========');
+        console.log('code:', code);
+        console.log('type:', type);
+        console.log('payload:', payload);
+        console.log('option:', option);
+        console.log('=====================================');
+        
+        // 检查是否是 ai_ask 功能（自动提问）
+        if (code === 'ai_ask' && payload) {
+          const question = payload.trim();
+          if (question) {
+            console.log('✅ 检测到自动提问，问题:', question);
+            // 存储问题到 sessionStorage，供 main.js 使用
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.setItem('autoAskQuestion', question);
+              console.log('✅ 已存储到 sessionStorage');
+            }
+            
+            // 尝试触发自动提问
+            const triggerAutoAsk = () => {
+              console.log('🔍 检查 ChatApp 是否已初始化...');
+              if (typeof window.chatApp !== 'undefined' && window.chatApp) {
+                console.log('✅ ChatApp 已初始化，立即触发自动提问');
+                // 确保有 API Key
+                if (window.chatApp.config && window.chatApp.config.apiKey) {
+                  console.log('✅ API Key 已配置，执行 autoAskQuestion');
+                  window.chatApp.autoAskQuestion(question);
+                } else {
+                  console.log('⚠️ 未配置 API Key，显示配置提示');
+                  window.chatApp.showConfigPrompt();
+                }
+              } else {
+                console.log('⏳ ChatApp 尚未初始化，等待加载...');
+                // 如果还没初始化，等待一下再试
+                setTimeout(triggerAutoAsk, 100);
+              }
+            };
+            
+            // 延迟一下确保 DOM 和脚本都加载完成
+            setTimeout(triggerAutoAsk, 50);
+          } else {
+            console.warn('⚠️ payload 为空');
+          }
+        } else if (code === 'ai_ask') {
+          console.log('⚠️ ai_ask 功能触发，但 payload 为空');
+        } else {
+          console.log('ℹ️ 普通进入，code:', code);
+        }
+      });
+    } else {
+      console.log('⚠️ utools 对象不存在，可能不在 uTools 环境中');
+    }
+  </script>
+
   <!-- Scripts -->
   <script src="js/storage.js"></script>
   <script src="js/api.js"></script>

@@ -28,6 +28,25 @@ class ChatApp {
       sessionStorage.removeItem('openSettings');
       setTimeout(() => this.openSettings(), 100);
     }
+    // 检查是否有自动提问（从 AI提问 入口进入）
+    else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('autoAskQuestion')) {
+      const question = sessionStorage.getItem('autoAskQuestion');
+      console.log('检测到自动提问:', question);
+      sessionStorage.removeItem('autoAskQuestion');
+      
+      // 检查是否已配置
+      if (!this.config.apiKey) {
+        console.log('未配置 API Key，显示配置提示');
+        this.showConfigPrompt();
+      } else {
+        console.log('已配置 API Key，准备自动发送问题');
+        // 创建新会话并自动发送问题
+        setTimeout(() => {
+          console.log('开始执行 autoAskQuestion');
+          this.autoAskQuestion(question);
+        }, 100);
+      }
+    }
     // 检查是否已配置
     else if (!this.config.apiKey) {
       this.showConfigPrompt();
@@ -492,6 +511,35 @@ class ChatApp {
         this.messageInput.focus();
       }
     }, 100);
+  }
+
+  /**
+   * 自动提问功能
+   * 创建新会话并自动发送问题
+   */
+  autoAskQuestion(question) {
+    if (!question || !question.trim()) {
+      console.warn('自动提问：问题为空');
+      this.focusInput();
+      return;
+    }
+
+    console.log('自动提问:', question);
+    
+    // 创建新会话
+    const newConv = this.storage.createNewConversation();
+    this.conversations.unshift(newConv);
+    this.storage.saveConversations(this.conversations);
+    this.switchConversation(newConv.id);
+    
+    // 填充问题到输入框
+    this.messageInput.value = question;
+    this.adjustTextareaHeight();
+    
+    // 延迟一下后自动发送
+    setTimeout(() => {
+      this.sendMessage();
+    }, 300);
   }
 
   async deleteConversation(id) {

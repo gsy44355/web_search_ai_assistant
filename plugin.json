@@ -21,6 +21,22 @@
       ]
     },
     {
+      "code": "ai_ask",
+      "explain": "向 AI 提问",
+      "cmds": [
+        {
+          "type": "over",
+          "label": "使用AI进行web搜索"
+        },
+        {
+          "type": "regex",
+          "label": "向AI提问",
+          "match": "/(.*)/",
+          "minLength": 2
+        }
+      ]
+    },
+    {
       "code": "ai_settings",
       "explain": "AI 设置",
       "cmds": [

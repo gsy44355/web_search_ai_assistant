@@ -24,6 +24,87 @@ window.exports = {
   },
 
   /**
+   * AI 提问功能（支持直接输入）
+   */
+  "ai_ask": {
+    mode: "none",
+    args: {
+      enter: (action, callbackSetList) => {
+        console.log('========== 进入 AI 提问 ==========');
+        console.log('action 类型:', typeof action);
+        console.log('action 内容:', action);
+        
+        try {
+          console.log('action JSON:', JSON.stringify(action, null, 2));
+        } catch (e) {
+          console.log('action 无法序列化为 JSON:', e.message);
+        }
+        
+        // 尝试多种方式获取用户输入的问题
+        let question = null;
+        
+        if (action) {
+          // 方式1: 尝试从 payload 获取（常用于 type: "over" 和一些其他类型）
+          if (action.payload) {
+            question = action.payload;
+            console.log('✓ 从 payload 获取:', question);
+          }
+          // 方式2: 尝试从 text 获取
+          else if (action.text) {
+            question = action.text;
+            console.log('✓ 从 text 获取:', question);
+          }
+          // 方式3: 尝试从 code 获取
+          else if (action.code) {
+            question = action.code;
+            console.log('✓ 从 code 获取:', question);
+          }
+          // 方式4: 如果 action 本身是字符串
+          else if (typeof action === 'string') {
+            question = action;
+            console.log('✓ action 本身是字符串:', question);
+          }
+          // 方式5: 尝试从 query 获取（用于 type: "input"）
+          else if (action.query) {
+            question = action.query;
+            console.log('✓ 从 query 获取:', question);
+          }
+        }
+        
+        // 如果成功获取到问题，存储到 sessionStorage
+        if (question && typeof question === 'string') {
+          const trimmedQuestion = question.trim();
+          if (trimmedQuestion) {
+            console.log('✅ 成功获取用户问题:', trimmedQuestion);
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.setItem('autoAskQuestion', trimmedQuestion);
+              console.log('✅ 已存储到 sessionStorage');
+            } else {
+              console.error('❌ sessionStorage 不可用');
+            }
+          } else {
+            console.warn('⚠️ 问题为空字符串');
+          }
+        } else {
+          console.error('❌ 未能获取到用户输入的问题');
+          console.log('action 的所有属性:');
+          if (action && typeof action === 'object') {
+            for (let key in action) {
+              console.log(`  - ${key}:`, action[key]);
+            }
+          }
+        }
+        
+        console.log('========================================');
+      },
+      
+      leave: () => {
+        console.log('离开 AI 提问');
+      }
+    }
+  },
+
+  /**
    * AI 设置功能
    */
   "ai_settings": {
