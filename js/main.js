@@ -204,15 +204,46 @@ class ChatApp {
 
   setupMarkdown() {
     if (typeof marked !== 'undefined') {
-      marked.setOptions({
-        highlight: function(code, lang) {
-          if (lang && hljs.getLanguage(lang)) {
-            try {
-              return hljs.highlight(code, { language: lang }).value;
-            } catch (err) {}
+      // 自定义渲染器
+      const renderer = new marked.Renderer();
+      
+      // 自定义代码块渲染，添加复制按钮
+      renderer.code = function(code, language) {
+        const lang = language || 'text';
+        let highlighted;
+        
+        if (lang && hljs.getLanguage(lang)) {
+          try {
+            highlighted = hljs.highlight(code, { language: lang }).value;
+          } catch (err) {
+            highlighted = hljs.highlightAuto(code).value;
           }
-          return hljs.highlightAuto(code).value;
-        },
+        } else {
+          highlighted = hljs.highlightAuto(code).value;
+        }
+        
+        // 转义代码用于复制（保留原始格式）
+        const escapedCode = code.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        
+        return `
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-block-language">${lang}</span>
+              <button class="code-copy-btn" onclick="window.chatApp.copyCode(this, '${escapedCode}')" title="复制代码">
+                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span class="copy-text">复制</span>
+              </button>
+            </div>
+            <pre><code class="hljs language-${lang}">${highlighted}</code></pre>
+          </div>
+        `;
+      };
+      
+      marked.setOptions({
+        renderer: renderer,
         breaks: true,
         gfm: true
       });
@@ -1015,6 +1046,46 @@ class ChatApp {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  /**
+   * 复制代码到剪贴板
+   */
+  copyCode(button, escapedCode) {
+    // 将转义的 HTML 实体还原
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = escapedCode;
+    const code = textarea.value;
+    
+    // 复制到剪贴板
+    if (typeof utools !== 'undefined' && utools.copyText) {
+      // 在 utools 环境中使用 utools API
+      utools.copyText(code);
+    } else if (navigator.clipboard) {
+      // 在浏览器环境中使用 Clipboard API
+      navigator.clipboard.writeText(code);
+    } else {
+      // 降级方案：使用 textarea
+      const tempTextarea = document.createElement('textarea');
+      tempTextarea.value = code;
+      tempTextarea.style.position = 'fixed';
+      tempTextarea.style.opacity = '0';
+      document.body.appendChild(tempTextarea);
+      tempTextarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextarea);
+    }
+    
+    // 显示反馈
+    const copyText = button.querySelector('.copy-text');
+    const originalText = copyText.textContent;
+    copyText.textContent = '已复制';
+    button.classList.add('copied');
+    
+    setTimeout(() => {
+      copyText.textContent = originalText;
+      button.classList.remove('copied');
+    }, 2000);
   }
 
   /**

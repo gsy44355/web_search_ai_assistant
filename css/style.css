@@ -1247,6 +1247,165 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
   background: #414868;
 }
 
+/* 代码块样式增强 */
+.code-block-wrapper {
+  position: relative;
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #282c34;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.code-block-language {
+  font-size: 12px;
+  font-weight: 500;
+  color: #abb2bf;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #abb2bf;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.code-copy-btn.copied {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.code-copy-btn .copy-icon {
+  flex-shrink: 0;
+}
+
+.code-copy-btn .copy-text {
+  font-weight: 500;
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  background: #282c34;
+}
+
+.code-block-wrapper pre code {
+  display: block;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #abb2bf;
+  background: transparent;
+}
+
+/* 浅色主题的代码块 */
+body.light-theme .code-block-wrapper {
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+}
+
+body.light-theme .code-block-header {
+  background: #f3f4f6;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+body.light-theme .code-block-language {
+  color: #586069;
+}
+
+body.light-theme .code-copy-btn {
+  background: #fff;
+  border-color: #e1e4e8;
+  color: #586069;
+}
+
+body.light-theme .code-copy-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5da;
+  color: #24292e;
+}
+
+body.light-theme .code-block-wrapper pre {
+  background: #f6f8fa;
+}
+
+body.light-theme .code-block-wrapper pre code {
+  color: #24292e;
+}
+
+/* 行内代码样式优化 */
+.message-content code:not(.hljs) {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+body.light-theme .message-content code:not(.hljs) {
+  background: #f3f4f6;
+  color: #e83e8c;
+  border: 1px solid #e1e4e8;
+}
+
+body.dark-theme .message-content code:not(.hljs) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f78c6c;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 滚动条美化（代码块） */
+.code-block-wrapper pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+body.light-theme .code-block-wrapper pre::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme .code-block-wrapper pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 /* 响应式 */
 @media (max-width: 768px) {
   .sidebar {
@@ -1262,6 +1421,14 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
 
   .message.user {
     max-width: 90%;
+  }
+  
+  .code-block-wrapper pre {
+    padding: 12px;
+  }
+  
+  .code-block-wrapper pre code {
+    font-size: 12px;
   }
 }
 
