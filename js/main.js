@@ -654,6 +654,8 @@ class ChatApp {
     document.getElementById('modalTemperatureValue').textContent = config.temperature || 0.7;
     document.getElementById('modalMaxTokens').value = config.maxTokens || 2000;
     document.getElementById('modalMaxTokensValue').textContent = config.maxTokens || 2000;
+    document.getElementById('modalMaxConversations').value = config.maxConversations || 200;
+    document.getElementById('modalMaxConversationsValue').textContent = config.maxConversations || 200;
     document.getElementById('modalSystemPrompt').value = config.systemPrompt || '你是一个helpful、harmless、honest的AI助手。';
     
     // 确保有 customModels
@@ -810,6 +812,11 @@ class ChatApp {
     document.getElementById('modalMaxTokens').addEventListener('input', (e) => {
       document.getElementById('modalMaxTokensValue').textContent = e.target.value;
     });
+
+    // 历史记录数量滑块
+    document.getElementById('modalMaxConversations').addEventListener('input', (e) => {
+      document.getElementById('modalMaxConversationsValue').textContent = e.target.value;
+    });
   }
 
   async addModel() {
@@ -964,6 +971,7 @@ class ChatApp {
       enableSearch: document.getElementById('modalEnableSearch').checked,
       temperature: parseFloat(document.getElementById('modalTemperature').value),
       maxTokens: parseInt(document.getElementById('modalMaxTokens').value),
+      maxConversations: parseInt(document.getElementById('modalMaxConversations').value),
       systemPrompt: document.getElementById('modalSystemPrompt').value.trim(),
       theme: this.config.theme,
       customModels: currentConfig.customModels || QianwenAPI.getDefaultModels()
@@ -974,6 +982,13 @@ class ChatApp {
     if (success) {
       this.config = newConfig;
       this.loadConfig();
+      
+      // 保存设置后，立即执行一次清理
+      this.conversations = this.storage.getConversations();
+      this.storage.saveConversations(this.conversations);
+      this.conversations = this.storage.getConversations(); // 重新加载清理后的对话
+      this.renderConversationsList();
+      
       await this.showAlert('设置保存成功！');
       this.closeSettings();
     } else {

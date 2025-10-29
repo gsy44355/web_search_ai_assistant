@@ -63,6 +63,7 @@ class StorageManager {
       maxTokens: 2000,
       systemPrompt: '你是一个helpful、harmless、honest的AI助手。',
       theme: 'light',
+      maxConversations: 200, // 最大保存对话数量
       customModels: [
         { value: 'qwen3-max', label: 'Qwen3-Max', supportsSearch: true }
       ]
@@ -70,20 +71,51 @@ class StorageManager {
   }
 
   /**
-   * 保存所有对话
+   * 保存所有对话（带自动清理）
    */
   saveConversations(conversations) {
     try {
+      // 自动清理过期的对话
+      const cleanedConversations = this.cleanupOldConversations(conversations);
+      
       if (typeof utools !== 'undefined' && utools.dbStorage) {
-        utools.dbStorage.setItem(this.CONVERSATIONS_KEY, JSON.stringify(conversations));
+        utools.dbStorage.setItem(this.CONVERSATIONS_KEY, JSON.stringify(cleanedConversations));
       } else {
-        localStorage.setItem(this.CONVERSATIONS_KEY, JSON.stringify(conversations));
+        localStorage.setItem(this.CONVERSATIONS_KEY, JSON.stringify(cleanedConversations));
       }
       return true;
     } catch (error) {
       console.error('保存对话失败:', error);
       return false;
     }
+  }
+
+  /**
+   * 清理过期的对话，保留最近的 N 条
+   */
+  cleanupOldConversations(conversations) {
+    const config = this.getConfig();
+    const maxConversations = config.maxConversations || 200;
+    
+    // 如果对话数量没有超过限制，直接返回
+    if (conversations.length <= maxConversations) {
+      return conversations;
+    }
+    
+    // 按更新时间排序（最新的在前）
+    const sortedConversations = [...conversations].sort((a, b) => {
+      return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+    });
+    
+    // 只保留最近的 N 条对话
+    const kept = sortedConversations.slice(0, maxConversations);
+    const removed = sortedConversations.slice(maxConversations);
+    
+    if (removed.length > 0) {
+      console.log(`自动清理了 ${removed.length} 条旧对话，保留最近的 ${maxConversations} 条`);
+    }
+    
+    return kept;
   }
 
   /**

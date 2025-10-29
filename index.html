@@ -181,6 +181,11 @@
             <input type="range" id="modalMaxTokens" min="100" max="8000" step="100" value="2000">
           </div>
           <div class="form-group">
+            <label>历史记录保留数量: <span id="modalMaxConversationsValue">200</span></label>
+            <input type="range" id="modalMaxConversations" min="10" max="1000" step="10" value="200">
+            <small class="help-text">超过此数量后，系统将自动删除最旧的对话记录</small>
+          </div>
+          <div class="form-group">
             <label for="modalSystemPrompt">系统提示词</label>
             <textarea id="modalSystemPrompt" rows="3" placeholder="定义 AI 的角色和行为"></textarea>
           </div>
