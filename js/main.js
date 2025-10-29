@@ -11,6 +11,7 @@ class ChatApp {
     this.currentController = null;
     this.isGenerating = false;
     this.isComposing = false; // 标记是否正在使用输入法输入
+    this.shouldAutoScroll = true; // 是否应该自动滚动到底部
     
     this.init();
   }
@@ -152,6 +153,9 @@ class ChatApp {
     // 发送消息
     this.sendBtn.addEventListener('click', () => this.sendMessage());
     this.stopBtn.addEventListener('click', () => this.stopGeneration());
+
+    // 监听滚动事件，检测用户是否在底部
+    this.messagesContainer.addEventListener('scroll', () => this.handleScroll());
 
     // 输入框自动调整高度
     this.messageInput.addEventListener('input', () => this.adjustTextareaHeight());
@@ -308,7 +312,8 @@ class ChatApp {
     } else {
       this.welcomeScreen.style.display = 'none';
       this.messages.innerHTML = messages.map(msg => this.createMessageHTML(msg)).join('');
-      this.scrollToBottom();
+      // 加载历史消息时强制滚动到底部
+      this.scrollToBottom(true);
     }
   }
 
@@ -372,6 +377,9 @@ class ChatApp {
     const userMessage = { role: 'user', content: content };
     this.addMessageToUI(userMessage);
     this.storage.addMessageToConversation(this.currentConversationId, userMessage);
+    
+    // 发送新消息时强制滚动到底部
+    this.scrollToBottom(true);
 
     // 重新加载 conversations 以获取最新的消息历史
     this.conversations = this.storage.getConversations();
@@ -391,7 +399,8 @@ class ChatApp {
         </div>
       </div>
     `;
-    this.scrollToBottom();
+    // 添加 loading 时强制滚动到底部
+    this.scrollToBottom(true);
 
     // 准备消息历史
     const conversation = this.conversations.find(c => c.id === this.currentConversationId);
@@ -486,7 +495,7 @@ class ChatApp {
 
   addMessageToUI(message) {
     this.messages.innerHTML += this.createMessageHTML(message);
-    this.scrollToBottom();
+    // 不在这里调用 scrollToBottom，由调用方决定是否滚动
   }
 
   createNewConversation() {
@@ -1010,10 +1019,39 @@ class ChatApp {
     this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 200) + 'px';
   }
 
-  scrollToBottom() {
-    setTimeout(() => {
-      this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-    }, 100);
+  /**
+   * 检测用户是否在消息容器底部
+   * 允许一定的误差（50px），因为滚动可能不精确到底部
+   */
+  isUserAtBottom() {
+    const container = this.messagesContainer;
+    const threshold = 50; // 误差阈值
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    return distanceFromBottom <= threshold;
+  }
+
+  /**
+   * 处理滚动事件
+   * 检测用户是否手动滚动离开底部
+   */
+  handleScroll() {
+    // 如果用户在底部附近，启用自动滚动
+    // 如果用户向上滚动查看历史消息，禁用自动滚动
+    this.shouldAutoScroll = this.isUserAtBottom();
+  }
+
+  /**
+   * 滚动到底部
+   * 只有当 shouldAutoScroll 为 true 时才滚动
+   * force 参数可以强制滚动（用于发送新消息等场景）
+   */
+  scrollToBottom(force = false) {
+    if (force || this.shouldAutoScroll) {
+      setTimeout(() => {
+        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        this.shouldAutoScroll = true; // 强制滚动后重新启用自动滚动
+      }, 100);
+    }
   }
 
   async showConfigPrompt() {
