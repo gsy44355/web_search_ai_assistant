@@ -1379,6 +1379,48 @@ body.dark-theme .message-content code:not(.hljs) {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* 链接样式优化 */
+.message-content a.external-link {
+  color: #3b82f6;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  padding-right: 16px;
+}
+
+.message-content a.external-link:hover {
+  border-bottom-color: #3b82f6;
+  color: #2563eb;
+}
+
+/* 链接后面添加外部链接图标 */
+.message-content a.external-link::after {
+  content: '🔗';
+  font-size: 0.85em;
+  margin-left: 4px;
+  opacity: 0.6;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.message-content a.external-link:hover::after {
+  opacity: 1;
+}
+
+/* 深色主题的链接 */
+body.dark-theme .message-content a.external-link {
+  color: #60a5fa;
+}
+
+body.dark-theme .message-content a.external-link:hover {
+  border-bottom-color: #60a5fa;
+  color: #93c5fd;
+}
+
 /* 滚动条美化（代码块） */
 .code-block-wrapper pre::-webkit-scrollbar {
   height: 8px;

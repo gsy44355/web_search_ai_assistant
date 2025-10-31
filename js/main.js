@@ -211,6 +211,15 @@ class ChatApp {
       // 自定义渲染器
       const renderer = new marked.Renderer();
       
+      // 自定义链接渲染，使其在外部浏览器中打开
+      renderer.link = function(href, title, text) {
+        // 转义 href 用于 onclick
+        const escapedHref = href.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const titleAttr = title ? ` title="${title}"` : '';
+        
+        return `<a href="${href}"${titleAttr} class="external-link" onclick="window.chatApp.openExternalLink('${escapedHref}'); return false;">${text}</a>`;
+      };
+      
       // 自定义代码块渲染，添加复制按钮
       renderer.code = function(code, language) {
         const lang = language || 'text';
@@ -1099,6 +1108,21 @@ class ChatApp {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  /**
+   * 打开外部链接
+   */
+  openExternalLink(url) {
+    console.log('打开外部链接:', url);
+    
+    if (typeof utools !== 'undefined' && utools.shellOpenExternal) {
+      // 在 utools 环境中使用 shellOpenExternal
+      utools.shellOpenExternal(url);
+    } else if (typeof window !== 'undefined') {
+      // 在浏览器环境中使用 window.open
+      window.open(url, '_blank');
+    }
   }
 
   /**
